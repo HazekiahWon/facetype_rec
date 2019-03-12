@@ -57,6 +57,10 @@ with tf.Graph().as_default():
 
         train_val_rat = 0.15
         df = pd.concat([pd.Series(paths),pd.Series(labels)], axis=1) # n,2
+        shuffled_ind = df.index
+        np.random.shuffle(shuffled_ind)
+        x = emb_array[shuffled_ind]
+        y = labels[shuffled_ind]
         df.columns = ['path','label']
         val_list = list()
         # train_list = list()
@@ -73,8 +77,8 @@ with tf.Graph().as_default():
         # r2 = r2_score(labels[val_list],val_pred)
         # print(acc, r2)
         parameters = {
-            'C': np.arange(1, 100 + 1, 1).tolist(),
-            'kernel': ['linear', 'rbf'],  # precomputed,'poly', 'sigmoid'
+            'C': np.arange(1, 500 + 1, 5).tolist(),
+            'kernel': ['poly', 'rbf','sigmoid'],  # precomputed,'poly', 'sigmoid'
             'degree': np.arange(0, 100 + 0, 1).tolist(),
             'gamma': np.arange(0.0, 10.0 + 0.0, 0.1).tolist(),
             'coef0': np.arange(0.0, 10.0 + 0.0, 0.1).tolist(),
@@ -88,30 +92,31 @@ with tf.Graph().as_default():
             'random_state': [None],
         }
 
-        C_range = np.logspace(-2, 10, 13)
-        gamma_range = np.logspace(-9, 3, 13)
-        param_grid = dict(gamma=gamma_range, C=C_range)
-        cv = StratifiedShuffleSplit(n_splits=10, test_size=0.15, random_state=42)
-        model = GridSearchCV(SVC(), param_grid=param_grid, cv=cv)
-        model.fit(emb_array, labels)
+        # C_range = np.logspace(-2, 10, 13)
+        # gamma_range = np.logspace(-9, 3, 13)
+        # param_grid = dict(gamma=gamma_range, C=C_range)
+        # cv = StratifiedShuffleSplit(n_splits=10, test_size=0.15, random_state=42)
+        # model = GridSearchCV(SVC(), param_grid=param_grid, cv=cv)
+        # model.fit(x,y)
 
-        # model = RandomizedSearchCV(n_iter=500,
-        #                                        estimator=SVC(),
-        #                                        param_distributions=parameters,
-        #                                        n_jobs=4,
-        #                                        iid=True,
-        #                                        refit=True,
-        #                                        cv=10,
-        #                                        verbose=1,
-        #                                        pre_dispatch='2*n_jobs'
-        #                                        )  # scoring = 'accuracy'
-        # model.fit(emb_array, labels)
+        model = RandomizedSearchCV(n_iter=500,
+                                               estimator=SVC(),
+                                               param_distributions=parameters,
+                                               n_jobs=4,
+                                               iid=True,
+                                               refit=True,
+                                               cv=10,
+                                               verbose=1,
+                                               pre_dispatch='2*n_jobs'
+                                               )  # scoring = 'accuracy'
+        model.fit(emb_array, labels)
         print(model.best_estimator_)
         print(model.best_score_)
         print(model.best_params_)
         clf = model.best_estimator_
         pred = clf.predict(emb_array[val_list])
-        print('val acc:', accuracy_score(labels[val_list], pred))
+        print('val acc:', accuracy_score(labels[val_list], pred),
+              r2_score(accuracy_score(labels[val_list], pred)))
 
         # Create a list of class names
         class_names = [cls.name.replace('_', ' ') for cls in dataset]
