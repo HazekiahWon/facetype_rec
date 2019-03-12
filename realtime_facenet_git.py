@@ -17,6 +17,8 @@ import time
 import copy
 import math
 import pickle
+import config
+import glob
 from sklearn.svm import SVC
 from sklearn.externals import joblib
 
@@ -25,7 +27,7 @@ with tf.Graph().as_default():
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.6)
     sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
     with sess.as_default():
-        pnet, rnet, onet = detect_face.create_mtcnn(sess, './Path to det1.npy,..')
+        pnet, rnet, onet = detect_face.create_mtcnn(sess, config.align_params)
 
         minsize = 20  # minimum size of face
         threshold = [0.6, 0.7, 0.7]  # three steps's threshold
@@ -39,7 +41,7 @@ with tf.Graph().as_default():
         classes = ['circle', 'diamond', 'egg', 'long', 'polygon', 'square', 'triangle']    #train human name
 
         print('Loading feature extraction model')
-        modeldir = '/..Path to pre-trained model../20170512-110547/20170512-110547.pb'
+        modeldir = config.model_params
         facenet.load_model(modeldir)
 
         images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
@@ -47,13 +49,13 @@ with tf.Graph().as_default():
         phase_train_placeholder = tf.get_default_graph().get_tensor_by_name("phase_train:0")
         embedding_size = embeddings.get_shape()[1]
 
-        classifier_filename = '/..Path to classifier model../my_classifier.pkl'
+        classifier_filename = os.path.join(config.clf_dir, config.clf_name)
         classifier_filename_exp = os.path.expanduser(classifier_filename)
         with open(classifier_filename_exp, 'rb') as infile:
             (model, class_names) = pickle.load(infile)
             print('load classifier file-> %s' % classifier_filename_exp)
 
-        video_capture = cv2.VideoCapture(0)
+        # video_capture = cv2.VideoCapture(0)
         c = 0
 
         # #video writer
@@ -62,10 +64,12 @@ with tf.Graph().as_default():
 
         print('Start Recognition!')
         prevTime = 0
-        while True:
-            ret, frame = video_capture.read()
+        img_list = glob.glob('ftdata/circle/*')
+        for img_path in img_list:
+            frame = cv2.imread(img_path)
+            # ret, frame = video_capture.read()
 
-            frame = cv2.resize(frame, (0,0), fx=0.5, fy=0.5)    #resize frame (optional)
+            # frame = cv2.resize(frame, (0,0), fx=0.5, fy=0.5)    #resize frame (optional)
 
             curTime = time.time()    # calc fps
             timeF = frame_interval
@@ -139,10 +143,10 @@ with tf.Graph().as_default():
             # c+=1
             cv2.imshow('Video', frame)
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            if cv2.waitKey(0) & 0xFF == ord('q'):
                 break
 
-        video_capture.release()
+        # video_capture.release()
         # #video writer
         # out.release()
         cv2.destroyAllWindows()

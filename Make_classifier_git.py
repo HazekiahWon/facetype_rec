@@ -12,6 +12,9 @@ import sys
 import math
 import pickle
 from sklearn.svm import SVC
+from sklearn.model_selection import RandomizedSearchCV, StratifiedShuffleSplit, GridSearchCV
+import pandas as pd
+from sklearn.metrics import accuracy_score, r2_score
 
 
 with tf.Graph().as_default():
@@ -52,10 +55,63 @@ with tf.Graph().as_default():
         os.makedirs(config.clf_dir,exist_ok=True)
         classifier_filename_exp = os.path.expanduser(classifier_filename)
 
+        train_val_rat = 0.15
+        df = pd.concat([pd.Series(paths),pd.Series(labels)], axis=1) # n,2
+        df.columns = ['path','label']
+        val_list = list()
+        # train_list = list()
+        for n,g in df.groupby('label'):
+            val_list.extend(np.random.choice(g.index, size=int(len(g)*train_val_rat)))
+        train_list = list(set(df.index)-set(val_list))
+
         # Train classifier
         print('Training classifier')
-        model = SVC(kernel='linear', probability=True)
+        # model = SVC(kernel='rbf', probability=True)
+        # model.fit(emb_array[train_list], labels[train_list])
+        # val_pred = model.predict(emb_array[val_list])
+        # acc = sum(labels[val_list]==val_pred)/len(val_list)#accuracy_score(labels[val_list],val_pred)
+        # r2 = r2_score(labels[val_list],val_pred)
+        # print(acc, r2)
+        parameters = {
+            'C': np.arange(1, 100 + 1, 1).tolist(),
+            'kernel': ['linear', 'rbf'],  # precomputed,'poly', 'sigmoid'
+            'degree': np.arange(0, 100 + 0, 1).tolist(),
+            'gamma': np.arange(0.0, 10.0 + 0.0, 0.1).tolist(),
+            'coef0': np.arange(0.0, 10.0 + 0.0, 0.1).tolist(),
+            'shrinking': [True],
+            'probability': [False],
+            'tol': np.arange(0.001, 0.01 + 0.001, 0.001).tolist(),
+            'cache_size': [2000],
+            'class_weight': [None],
+            'verbose': [False],
+            'max_iter': [-1],
+            'random_state': [None],
+        }
+
+        C_range = np.logspace(-2, 10, 13)
+        gamma_range = np.logspace(-9, 3, 13)
+        param_grid = dict(gamma=gamma_range, C=C_range)
+        cv = StratifiedShuffleSplit(n_splits=10, test_size=0.15, random_state=42)
+        model = GridSearchCV(SVC(), param_grid=param_grid, cv=cv)
         model.fit(emb_array, labels)
+
+        # model = RandomizedSearchCV(n_iter=500,
+        #                                        estimator=SVC(),
+        #                                        param_distributions=parameters,
+        #                                        n_jobs=4,
+        #                                        iid=True,
+        #                                        refit=True,
+        #                                        cv=10,
+        #                                        verbose=1,
+        #                                        pre_dispatch='2*n_jobs'
+        #                                        )  # scoring = 'accuracy'
+        # model.fit(emb_array, labels)
+        print(model.best_estimator_)
+        print(model.best_score_)
+        print(model.best_params_)
+        clf = model.best_estimator_
+        pred = clf.predict(emb_array[val_list])
+        print('val acc:', accuracy_score(labels[val_list], pred))
 
         # Create a list of class names
         class_names = [cls.name.replace('_', ' ') for cls in dataset]
