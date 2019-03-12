@@ -4,8 +4,8 @@
 1. install anaconda  
 2. open `conda prompt`, type:  
 `conda install --file requirements.txt`
-3. in `conda prompt`, type:
-`git clone https://github.com/HazekiahWon/facetype_rec.git'  
+3. in `conda prompt`, type:  
+`git clone https://github.com/HazekiahWon/facetype_rec.git`  
 `cd facetype_rec`
 4. create a folder `ftdata` and put your images there.
 ### testing
