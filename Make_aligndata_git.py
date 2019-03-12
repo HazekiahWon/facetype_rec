@@ -10,6 +10,7 @@ import tensorflow as tf
 import numpy as np
 import facenet
 import detect_face
+import pandas as pd
 import random
 from time import sleep
 
@@ -42,6 +43,7 @@ print('Goodluck')
 with open(bounding_boxes_filename, "w") as text_file:
     nrof_images_total = 0
     nrof_successfully_aligned = 0
+    error_ls = list()
     for cls in dataset:
         output_class_dir = os.path.join(output_dir, cls.name)
         if not os.path.exists(output_class_dir):
@@ -58,10 +60,12 @@ with open(bounding_boxes_filename, "w") as text_file:
                 except (IOError, ValueError, IndexError) as e:
                     errorMessage = '{}: {}'.format(image_path, e)
                     print(errorMessage)
+                    error_ls.append(image_path)
                 else:
                     if img.ndim < 2:
                         print('Unable to align "%s"' % image_path)
                         text_file.write('%s\n' % (output_filename))
+                        error_ls.append(image_path)
                         continue
                     if img.ndim == 2:
                         img = facenet.to_rgb(img)
@@ -96,16 +100,19 @@ with open(bounding_boxes_filename, "w") as text_file:
                             scaled_temp = misc.imresize(cropped_temp, (image_size, image_size), interp='bilinear')
                         except:
                             print(cropped_temp.shape, image_size, image_path)
+                            error_ls.append(image_path)
                             continue
                         nrof_successfully_aligned += 1
                         misc.imsave(output_filename, scaled_temp)
                         text_file.write('%s %d %d %d %d\n' % (output_filename, bb_temp[0], bb_temp[1], bb_temp[2], bb_temp[3]))
                     else:
                         print('Unable to align "%s"' % image_path)
+                        error_ls.append(image_path)
                         text_file.write('%s\n' % (output_filename))
 
 print('Total number of images: %d' % nrof_images_total)
 print('Number of successfully aligned images: %d' % nrof_successfully_aligned)
+pd.Series(error_ls).to_csv('error_img.csv')
 
 
 
