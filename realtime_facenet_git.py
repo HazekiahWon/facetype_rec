@@ -19,6 +19,25 @@ import config
 import glob
 import pandas as pd
 
+parser = argparse.ArgumentParser(description='PyTorch actor-critic example')
+parser.add_argument('--align_params', type=str, default=config.align_params,
+                    help='the params file for the alignment module')
+parser.add_argument('--show_flag', type=bool, default=False,
+                    help='show the image while testing')
+parser.add_argument('--model_params', type=str, default=config.model_params,
+                    help='the params file for the model ')
+parser.add_argument('--clf_name', type=str, default=config.clf_name,
+                    help='classifier name')
+parser.add_argument('--clf_dir', type=str, default=config.clf_dir,
+                    help='classifier dir')
+parser.add_argument('--rel_path', type=str, default=config.rel_path,
+                    help='the relative path of the input data dir')
+parser.add_argument('--output_file', type=str, default='test_results',
+                    help='the output file name for the test results')
+
+args = parser.parse_args()
+
+show_flag = args.show_flag
 def one_by_one(rel_path):
     print('Start Recognition!')
     prevTime = 0
@@ -188,25 +207,7 @@ def batch_inp(rel_path):
     comb = list(zip(img_list, results))
     pd.DataFrame(comb).to_csv('test_results.csv')
 
-parser = argparse.ArgumentParser(description='PyTorch actor-critic example')
-parser.add_argument('--align_params', type=str, default=config.align_params,
-                    help='the params file for the alignment module')
-parser.add_argument('--show_flag', default=False,
-                    help='show the image while testing')
-parser.add_argument('--model_params', type=str, default=config.model_params,
-                    help='the params file for the model ')
-parser.add_argument('--clf_name', type=str, default=config.clf_name,
-                    help='classifier name')
-parser.add_argument('--clf_dir', type=str, default=config.clf_dir,
-                    help='classifier dir')
-parser.add_argument('--rel_path', type=str, default=config.rel_path,
-                    help='the relative path of the input data dir')
-parser.add_argument('--output_file', type=str, default='test_results',
-                    help='the output file name for the test results')
 
-args = parser.parse_args()
-
-show_flag = args.show_flag
 print('Creating networks and loading parameters')
 with tf.Graph().as_default():
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.6)
@@ -245,8 +246,10 @@ with tf.Graph().as_default():
 
         # video_capture = cv2.VideoCapture(0)
         c = 0
-
         one_by_one(args.rel_path)
+        # if show_flag:
+        #     one_by_one(args.rel_path)
+        # else: batch_inp(args.rel_path)
         print('finish.')
 
 

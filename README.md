@@ -1,7 +1,9 @@
 # facetype recognition
-## dependencies
 ## usage
 ### installation
 ### testing
-`python realtime_facenet_git.py --show_flag False --rel_path ftdata\polygon`
+In order to show every image :
+`python realtime_facenet_git.py --show_flag 1 --rel_path ftdata\polygon`
+By default :
+`python realtime_facenet_git.py --rel_path ftdata\polygon`
 
