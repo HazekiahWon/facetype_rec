@@ -77,15 +77,15 @@ with tf.Graph().as_default():
         # r2 = r2_score(labels[val_list],val_pred)
         # print(acc, r2)
         parameters = {
-            'C': np.arange(1, 100 + 1, 1).tolist(),
-            'kernel': ['linear', 'rbf'],  # precomputed,'poly', 'sigmoid'
-            'degree': np.arange(0, 100 + 0, 1).tolist(),
-            'gamma': np.arange(0.0, 10.0 + 0.0, 0.1).tolist(),
-            'coef0': np.arange(0.0, 10.0 + 0.0, 0.1).tolist(),
+            'C': np.arange(1, 50 + 1, 1).tolist(),
+            'kernel': ['rbf'],  # precomputed,'poly', 'sigmoid'
+            'degree': np.arange(30, 100 + 0, 1).tolist(),
+            'gamma': np.arange(0.0, 5.0 + 0.0, 0.1).tolist(),
+            'coef0': np.arange(1.0, 10.0 + 0.0, 0.1).tolist(),
             'shrinking': [True],
             'probability': [False],
             'tol': np.arange(0.001, 0.01 + 0.001, 0.001).tolist(),
-            'cache_size': [2000],
+            'cache_size': [200],
             'class_weight': [None],
             'verbose': [False],
             'max_iter': [-1],
@@ -116,7 +116,7 @@ with tf.Graph().as_default():
         clf = model.best_estimator_
         pred = clf.predict(emb_array[val_list])
         print('val acc:', accuracy_score(labels[val_list], pred),
-              r2_score(accuracy_score(labels[val_list], pred)))
+              r2_score(labels[val_list], pred))
 
         # Create a list of class names
         class_names = [cls.name.replace('_', ' ') for cls in dataset]
