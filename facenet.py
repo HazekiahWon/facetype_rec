@@ -40,6 +40,7 @@ import random
 import re
 from tensorflow.python.platform import gfile
 
+
 def triplet_loss(anchor, positive, negative, alpha):
     """Calculate the triplet loss according to the FaceNet paper
     
@@ -328,6 +329,7 @@ def get_dataset(paths, has_class_directories=True):
         path_exp = os.path.expanduser(path)
         classes = os.listdir(path_exp)
         classes.sort()
+
         nrof_classes = len(classes)
         for i in range(nrof_classes):
             class_name = classes[i]
@@ -335,7 +337,7 @@ def get_dataset(paths, has_class_directories=True):
             image_paths = get_image_paths(facedir)
             dataset.append(ImageClass(class_name, image_paths))
   
-    return dataset
+    return dataset, classes
 
 def get_image_paths(facedir):
     image_paths = []

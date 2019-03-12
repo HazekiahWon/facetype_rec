@@ -1,4 +1,10 @@
-# real-time-deep-face-recogniton
+# facetype recognition
+## dependencies
+
+## usage
+### installation
+### testing
+`python realtime_facenet_git.py --show_flag False`
 
 Real-time face recognition program using Google's facenet.
 * [youtube video](https://www.youtube.com/watch?v=T6czH6DLhC4)

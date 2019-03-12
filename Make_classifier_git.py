@@ -22,7 +22,9 @@ with tf.Graph().as_default():
     with tf.Session() as sess:
 
         datadir = config.aligned_train
-        dataset = facenet.get_dataset(datadir)
+        dataset,classes = facenet.get_dataset(datadir)
+        with open(config.classes_map, 'wb') as f:
+            pickle.dump(classes, f)
         paths, labels = facenet.get_image_paths_and_labels(dataset)
         print('Number of classes: %d' % len(dataset))
         print('Number of images: %d' % len(paths))
@@ -83,7 +85,7 @@ with tf.Graph().as_default():
             'gamma': np.arange(0.0, 5.0 + 0.0, 0.1).tolist(),
             'coef0': np.arange(1.0, 10.0 + 0.0, 0.1).tolist(),
             'shrinking': [True],
-            'probability': [False],
+            'probability': [True],
             'tol': np.arange(0.001, 0.01 + 0.001, 0.001).tolist(),
             'cache_size': [200],
             'class_weight': [None],
