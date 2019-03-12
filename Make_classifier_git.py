@@ -77,8 +77,8 @@ with tf.Graph().as_default():
         # r2 = r2_score(labels[val_list],val_pred)
         # print(acc, r2)
         parameters = {
-            'C': np.arange(1, 500 + 1, 5).tolist(),
-            'kernel': ['poly', 'rbf','sigmoid'],  # precomputed,'poly', 'sigmoid'
+            'C': np.arange(1, 100 + 1, 1).tolist(),
+            'kernel': ['linear', 'rbf'],  # precomputed,'poly', 'sigmoid'
             'degree': np.arange(0, 100 + 0, 1).tolist(),
             'gamma': np.arange(0.0, 10.0 + 0.0, 0.1).tolist(),
             'coef0': np.arange(0.0, 10.0 + 0.0, 0.1).tolist(),
