@@ -6,8 +6,9 @@
 `conda install --file requirements.txt`
 3. create a folder `ftdata` and put your images there.
 ### testing
-In order to show every image :
-`python realtime_facenet_git.py --show_flag 1 --rel_path ftdata\polygon`
-By default :
+1. By default :
 `python realtime_facenet_git.py --rel_path ftdata\polygon`
+2. In order to show every image :
+`python realtime_facenet_git.py --show_flag 1 --rel_path ftdata\polygon`  
+
 
