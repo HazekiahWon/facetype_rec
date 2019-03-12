@@ -18,7 +18,7 @@ output_dir = os.path.expanduser(output_dir_path)
 if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-datadir = r'ftdata\circle'
+datadir = r'ftdata'
 dataset = facenet.get_dataset(datadir)
 
 print('Creating networks and loading parameters')
@@ -92,8 +92,11 @@ with open(bounding_boxes_filename, "w") as text_file:
                         bb_temp[3] = det[3]
 
                         cropped_temp = img[bb_temp[1]:bb_temp[3], bb_temp[0]:bb_temp[2], :]
-                        scaled_temp = misc.imresize(cropped_temp, (image_size, image_size), interp='bilinear')
-
+                        try:
+                            scaled_temp = misc.imresize(cropped_temp, (image_size, image_size), interp='bilinear')
+                        except:
+                            print(cropped_temp.shape, image_size, image_path)
+                            continue
                         nrof_successfully_aligned += 1
                         misc.imsave(output_filename, scaled_temp)
                         text_file.write('%s %d %d %d %d\n' % (output_filename, bb_temp[0], bb_temp[1], bb_temp[2], bb_temp[3]))
