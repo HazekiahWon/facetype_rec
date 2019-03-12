@@ -49,6 +49,7 @@ with tf.Graph().as_default():
             emb_array[start_index:end_index, :] = sess.run(embeddings, feed_dict=feed_dict)
 
         classifier_filename = 'classifiers/my_classifier.pkl'
+        os.makedirs('classifiers',exist_ok=True)
         classifier_filename_exp = os.path.expanduser(classifier_filename)
 
         # Train classifier
