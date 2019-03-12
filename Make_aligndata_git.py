@@ -3,17 +3,16 @@ from __future__ import division
 from __future__ import print_function
 
 from scipy import misc
-import sys
+
 import os
-import argparse
+
 import tensorflow as tf
 import numpy as np
 import facenet
 import detect_face
 import pandas as pd
 import config
-import random
-from time import sleep
+
 
 output_dir_path = config.aligned_dir
 output_dir = os.path.expanduser(output_dir_path)

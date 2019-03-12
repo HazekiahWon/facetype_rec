@@ -5,23 +5,20 @@ from __future__ import print_function
 import tensorflow as tf
 from scipy import misc
 import cv2
-import matplotlib.pyplot as plt
+
 import numpy as np
 import argparse
 import facenet
 import detect_face
 import os
-from os.path import join as pjoin
-import sys
+
 import time
-import copy
-import math
+
 import pickle
 import config
 import glob
 import pandas as pd
-from sklearn.svm import SVC
-from sklearn.externals import joblib
+
 def one_by_one(rel_path):
     print('Start Recognition!')
     prevTime = 0
@@ -96,9 +93,9 @@ def one_by_one(rel_path):
                     text_y = bb[i][3] + 20
                     # print('result: ', best_class_indices[0])
                     if show_flag:
-                        for H_i in classes:
-                            if classes[best_class_indices[0]] == H_i:
-                                result_names = classes[best_class_indices[0]]
+                        for H_i in class_names:
+                            if class_names[best_class_indices[0]] == H_i:
+                                result_names = class_names[best_class_indices[0]]
                                 cv2.putText(frame, result_names, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                             1, (0, 0, 255), thickness=1, lineType=2)
             else:
@@ -128,7 +125,7 @@ def one_by_one(rel_path):
     # print(len(ok_list),len(results))
     # pred[ok_list] = results
     # print(pred)
-    results = [classes[i] if i is not None else None for i in results]
+    results = [class_names[i] if i is not None else None for i in results]
     comb = list(zip(img_list, results))
     pd.DataFrame(comb).to_csv(args.output_file+'.csv')
 
@@ -187,7 +184,7 @@ def batch_inp(rel_path):
     # best_class_probabilities = np.max(predictions, axis=1)
 
     results = np.zeros_like(img_list)
-    results[ok_ind] = [classes[i] for i in best_class_indices]
+    results[ok_ind] = [class_names[i] for i in best_class_indices]
     comb = list(zip(img_list, results))
     pd.DataFrame(comb).to_csv('test_results.csv')
 
@@ -226,9 +223,10 @@ with tf.Graph().as_default():
         image_size = 182
         input_image_size = 160
 
-        # classes = ['circle', 'diamond', 'egg', 'long', 'polygon', 'square', 'triangle']    #train human name
-        with open(config.classes_map, 'rb') as f:
-            classes = pickle.load(f)
+        # # classes = ['circle', 'diamond', 'egg', 'long', 'polygon', 'square', 'triangle']    #train human name
+        # with open(config.classes_map, 'rb') as f:
+        #     class_names = pickle.load(f)
+        #     print(class_names)
 
         print('Loading feature extraction model')
         modeldir = args.model_params

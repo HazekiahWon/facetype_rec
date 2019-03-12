@@ -329,6 +329,7 @@ def get_dataset(paths, has_class_directories=True):
         path_exp = os.path.expanduser(path)
         classes = os.listdir(path_exp)
         classes.sort()
+        classes = [i for i in classes if not i.endswith('.txt')]
 
         nrof_classes = len(classes)
         for i in range(nrof_classes):
@@ -337,7 +338,7 @@ def get_dataset(paths, has_class_directories=True):
             image_paths = get_image_paths(facedir)
             dataset.append(ImageClass(class_name, image_paths))
   
-    return dataset, classes
+    return dataset
 
 def get_image_paths(facedir):
     image_paths = []

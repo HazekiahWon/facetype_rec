@@ -4,11 +4,11 @@ from __future__ import print_function
 import config
 import tensorflow as tf
 import numpy as np
-import argparse
+
 import facenet
-import detect_face
+
 import os
-import sys
+
 import math
 import pickle
 from sklearn.svm import SVC
@@ -22,9 +22,9 @@ with tf.Graph().as_default():
     with tf.Session() as sess:
 
         datadir = config.aligned_train
-        dataset,classes = facenet.get_dataset(datadir)
-        with open(config.classes_map, 'wb') as f:
-            pickle.dump(classes, f)
+        dataset = facenet.get_dataset(datadir)
+        # with open(config.classes_map, 'wb') as f:
+        #     pickle.dump(classes, f)
         paths, labels = facenet.get_image_paths_and_labels(dataset)
         print('Number of classes: %d' % len(dataset))
         print('Number of images: %d' % len(paths))
@@ -125,6 +125,6 @@ with tf.Graph().as_default():
 
         # Saving classifier model
         with open(classifier_filename_exp, 'wb') as outfile:
-            pickle.dump((model, class_names), outfile)
+            pickle.dump((model.best_estimator_, class_names), outfile)
         print('Saved classifier model to file "%s"' % classifier_filename_exp)
         print('Goodluck')
