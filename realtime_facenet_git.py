@@ -36,7 +36,7 @@ with tf.Graph().as_default():
         image_size = 182
         input_image_size = 160
 
-        HumanNames = ['Human_a','Human_b','Human_c','...','Human_h']    #train human name
+        classes = ['circle', 'diamond', 'egg', 'long', 'polygon', 'square', 'triangle']    #train human name
 
         print('Loading feature extraction model')
         modeldir = '/..Path to pre-trained model../20170512-110547/20170512-110547.pb'
@@ -120,9 +120,9 @@ with tf.Graph().as_default():
                         text_x = bb[i][0]
                         text_y = bb[i][3] + 20
                         # print('result: ', best_class_indices[0])
-                        for H_i in HumanNames:
-                            if HumanNames[best_class_indices[0]] == H_i:
-                                result_names = HumanNames[best_class_indices[0]]
+                        for H_i in classes:
+                            if classes[best_class_indices[0]] == H_i:
+                                result_names = classes[best_class_indices[0]]
                                 cv2.putText(frame, result_names, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                             1, (0, 0, 255), thickness=1, lineType=2)
                 else:
