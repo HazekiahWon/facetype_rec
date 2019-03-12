@@ -58,7 +58,7 @@ with tf.Graph().as_default():
         train_val_rat = 0.15
         df = pd.concat([pd.Series(paths),pd.Series(labels)], axis=1) # n,2
         shuffled_ind = df.index
-        np.random.shuffle(shuffled_ind)
+        np.random.shuffle(shuffled_ind.values)
         x = emb_array[shuffled_ind]
         y = labels[shuffled_ind]
         df.columns = ['path','label']
