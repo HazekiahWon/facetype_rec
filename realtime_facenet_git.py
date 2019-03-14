@@ -146,7 +146,7 @@ def one_by_one(rel_path):
     # print(pred)
     results = [class_names[i] if i is not None else None for i in results]
     comb = list(zip(img_list, results))
-    pd.DataFrame(comb).to_csv(args.output_file+'.csv')
+    pd.DataFrame(comb).to_csv(args.output_file+'.csv', mode='a')
 
 def batch_inp(rel_path):
     print('Start Recognition!')
