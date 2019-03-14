@@ -38,6 +38,13 @@ parser.add_argument('--output_file', type=str, default='test_results',
 args = parser.parse_args()
 
 show_flag = args.show_flag
+import os, sys
+# Translate asset paths to useable format for PyInstaller
+def resource_path(relative_path):
+  if hasattr(sys, '_MEIPASS'):
+      return os.path.join(sys._MEIPASS, relative_path)
+  return os.path.join(os.path.abspath('.'), relative_path)
+
 def one_by_one(rel_path):
     print('Start Recognition!')
     prevTime = 0
@@ -134,7 +141,10 @@ def one_by_one(rel_path):
 
             if cv2.waitKey(0) & 0xFF == ord('q'):
                 break
-        results.append(res)
+        a,b,m,n = bb[0]
+        if res is not None:
+            results.append([res]+list(predictions[0])+[m-a,n-b])
+        else: results.append([res]*10)
 
     # video_capture.release()
     # #video writer
@@ -144,9 +154,13 @@ def one_by_one(rel_path):
     # print(len(ok_list),len(results))
     # pred[ok_list] = results
     # print(pred)
-    results = [class_names[i] if i is not None else None for i in results]
-    comb = list(zip(img_list, results))
-    pd.DataFrame(comb).to_csv(args.output_file+'.csv', mode='a')
+    results = np.array(results)
+    print(results.shape)
+    # print(results)
+    labels = [class_names[int(i)] if i is not None else None for i in results[:,0]]
+    comb = np.concatenate([np.array(img_list).reshape((-1,1)),np.array(labels).reshape((-1,1)), results[:,1:]], axis=1)#list(zip(img_list, results))
+    print(comb.shape)
+    pd.DataFrame(comb).to_csv(args.output_file+'.csv', index=False, header=['filename','label','circle','diamond','egg','long','polygon','square','triangle','dx','dy'])
 
 def batch_inp(rel_path):
     print('Start Recognition!')
@@ -213,7 +227,7 @@ with tf.Graph().as_default():
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.6)
     sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
     with sess.as_default():
-        pnet, rnet, onet = detect_face.create_mtcnn(sess, args.align_params)
+        pnet, rnet, onet = detect_face.create_mtcnn(sess, resource_path(args.align_params))
 
         minsize = 20  # minimum size of face
         threshold = [0.6, 0.7, 0.7]  # three steps's threshold
@@ -231,7 +245,7 @@ with tf.Graph().as_default():
 
         print('Loading feature extraction model')
         modeldir = args.model_params
-        facenet.load_model(modeldir)
+        facenet.load_model(resource_path(modeldir))
 
         images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
         embeddings = tf.get_default_graph().get_tensor_by_name("embeddings:0")
@@ -239,14 +253,14 @@ with tf.Graph().as_default():
         embedding_size = embeddings.get_shape()[1]
 
         classifier_filename = os.path.join(args.clf_dir, args.clf_name)
-        classifier_filename_exp = os.path.expanduser(classifier_filename)
+        classifier_filename_exp = resource_path(os.path.expanduser(classifier_filename))
         with open(classifier_filename_exp, 'rb') as infile:
             (model, class_names) = pickle.load(infile)
             print('load classifier file-> %s' % classifier_filename_exp)
 
         # video_capture = cv2.VideoCapture(0)
         c = 0
-        one_by_one(args.rel_path)
+        one_by_one(resource_path(args.rel_path))
         # if show_flag:
         #     one_by_one(args.rel_path)
         # else: batch_inp(args.rel_path)
