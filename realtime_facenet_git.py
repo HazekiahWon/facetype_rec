@@ -155,11 +155,11 @@ def one_by_one(rel_path):
     # pred[ok_list] = results
     # print(pred)
     results = np.array(results)
-    print(results.shape)
+    # print(results.shape)
     # print(results)
     labels = [class_names[int(i)] if i is not None else None for i in results[:,0]]
     comb = np.concatenate([np.array(img_list).reshape((-1,1)),np.array(labels).reshape((-1,1)), results[:,1:]], axis=1)#list(zip(img_list, results))
-    print(comb.shape)
+    # print(comb.shape)
     pd.DataFrame(comb).to_csv(args.output_file+'.csv', index=False, header=['filename','label','circle','diamond','egg','long','polygon','square','triangle','dx','dy'])
 
 def batch_inp(rel_path):
