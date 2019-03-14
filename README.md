@@ -15,6 +15,9 @@
 `python realtime_facenet_git.py --show_flag 1 --rel_path ftdata\polygon` 
 3. if you set `show_flag` to `1`:  
 type `q` to quit, and any other key to continue.
+4. The test results will be output to `test_results.csv` by default, to set the file path:  
+`python realtime_facenet_git.py --rel_path ftdata\polygon --output_file results`  
+which sets the output file name to `results.csv`
 ### Catching with the code
 go to your installation directory, e.g. `cd facetype_rec`  
 `git pull`
