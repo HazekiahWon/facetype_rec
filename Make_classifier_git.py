@@ -112,7 +112,8 @@ with tf.Graph().as_default():
                                                verbose=1,
                                                pre_dispatch='2*n_jobs',
                                                scoring = 'accuracy')
-        model.fit(emb_array[train_list], labels[train_list]) # otherwise, use x,y
+        model.fit(x,y)
+        # model.fit(emb_array[train_list], labels[train_list]) # otherwise, use x,y
         print('best estimator:', model.best_estimator_)
         print('trn acc', model.best_score_)
         print('params', model.best_params_)
