@@ -57,7 +57,7 @@ with tf.Graph().as_default():
         os.makedirs(config.clf_dir,exist_ok=True)
         classifier_filename_exp = os.path.expanduser(classifier_filename)
 
-        train_val_rat = 0.15
+        train_val_rat = 0.10
         df = pd.concat([pd.Series(paths),pd.Series(labels)], axis=1) # n,2
         shuffled_ind = df.index
         np.random.shuffle(shuffled_ind.values)
@@ -69,6 +69,7 @@ with tf.Graph().as_default():
         for n,g in df.groupby('label'):
             val_list.extend(np.random.choice(g.index, size=int(len(g)*train_val_rat)))
         train_list = list(set(df.index)-set(val_list))
+        print('train:val',len(train_list),':',len(val_list))
 
         # Train classifier
         print('Training classifier')
@@ -112,13 +113,16 @@ with tf.Graph().as_default():
                                                pre_dispatch='2*n_jobs'
                                                )  # scoring = 'accuracy'
         model.fit(emb_array, labels)
-        print(model.best_estimator_)
-        print(model.best_score_)
-        print(model.best_params_)
+        print('best estimator:', model.best_estimator_)
+        print('r2 score', model.best_score_)
+        print('params', model.best_params_)
         clf = model.best_estimator_
-        pred = clf.predict(emb_array[val_list])
-        print('val acc:', accuracy_score(labels[val_list], pred),
-              r2_score(labels[val_list], pred))
+        val_pred = clf.predict(emb_array[val_list])
+        trn_pred = clf.predict(emb_array[train_list])
+        print('val acc:', accuracy_score(labels[val_list], val_pred),
+              'val r2', r2_score(labels[val_list], val_pred))
+        print('trn acc:', accuracy_score(labels[train_list], trn_pred),
+              'trn r2', r2_score(labels[train_list], trn_pred))
 
         # Create a list of class names
         class_names = [cls.name.replace('_', ' ') for cls in dataset]

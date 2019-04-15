@@ -8,6 +8,11 @@
 3. in `conda prompt`, type:  
 `conda install --file requirements.txt`
 4. create a folder `ftdata` and put your images there.
+### training
+1. align data
+`python Make_aligndata_git.py`
+2. train and cross-validate classifiers
+`python Make_classifier_git.py`
 ### testing
 1. By default :
 `python realtime_facenet_git.py --rel_path ftdata\polygon`
@@ -18,7 +23,7 @@ type `q` to quit, and any other key to continue.
 4. The test results will be output to `test_results.csv` by default, to set the file path:  
 `python realtime_facenet_git.py --rel_path ftdata\polygon --output_file results`  
 which sets the output file name to `results.csv`
-### Catching with the code
+### Catching up with the code
 go to your installation directory, e.g. `cd facetype_rec`  
 `git pull`
 
