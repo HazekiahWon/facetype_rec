@@ -22,7 +22,8 @@ with tf.Graph().as_default():
     with tf.Session() as sess:
 
         datadir = config.aligned_train
-        dataset = facenet.get_dataset(datadir)
+        dataset,cnts = facenet.get_dataset(datadir)
+        print(f'{cnts},{sum(cnts)}')
         # with open(config.classes_map, 'wb') as f:
         #     pickle.dump(classes, f)
         paths, labels = facenet.get_image_paths_and_labels(dataset)
@@ -121,11 +122,16 @@ with tf.Graph().as_default():
         # val_pred = clf.predict(emb_array[val_list])
         ov_pred = clf.predict(emb_array)
         # trn_pred = clf.predict(emb_array[train_list])
+
+
+
+        overall = classification_report(labels, ov_pred)
+        val = classification_report(labels[val_list], ov_pred[val_list])
         print('overall:')
-        print(classification_report(labels, ov_pred))
+        print(overall)
         print('val acc:')
               # 'val r2', r2_score(labels[val_list], val_pred)
-        print(classification_report(labels[val_list], ov_pred[val_list]))
+        print(val)
         # print('trn acc:', accuracy_score(labels[train_list], trn_pred),
         #       'trn r2', r2_score(labels[train_list], trn_pred))
 
@@ -135,5 +141,9 @@ with tf.Graph().as_default():
         # Saving classifier model
         with open(classifier_filename_exp, 'wb') as outfile:
             pickle.dump((model.best_estimator_, class_names), outfile)
+        with open(os.path.join(config.clf_dir,'logger.txt'),'w') as f:
+            f.write(overall)
+            f.write('\n')
+            f.write(val)
         print('Saved classifier model to file "%s"' % classifier_filename_exp)
         print('Goodluck')

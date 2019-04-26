@@ -20,7 +20,8 @@ if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
 datadir = config.raw_dir
-dataset = facenet.get_dataset(datadir)
+dataset,cnts = facenet.get_dataset(datadir)
+print(f'{datadir}:{cnts},{sum(cnts)}')
 
 print('Creating networks and loading parameters')
 with tf.Graph().as_default():
