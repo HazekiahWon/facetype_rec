@@ -32,6 +32,7 @@ parser.add_argument('--clf_dir', type=str, default=config.clf_dir,
                     help='classifier dir')
 parser.add_argument('--rel_path', type=str, default=config.rel_path,
                     help='the relative path of the input data dir')
+parser.add_argument('--choice', type=int, default=1)
 parser.add_argument('--output_file', type=str, default='test_results',
                     help='the output file name for the test results')
 
@@ -40,10 +41,37 @@ args = parser.parse_args()
 show_flag = args.show_flag
 import os, sys
 # Translate asset paths to useable format for PyInstaller
+# header = ['filename','label','circle','diamond','egg','long','polygon','square','triangle','dx','dy']
+header = ['circle','diamond','egg','long','polygon','square','triangle','dx','dy']
+key2idx = {k:idx for idx,k in enumerate(header)}
+dy,dx,circ,squ,egg,pol,long = [key2idx[k] for k in ('dy','dx','circle','square','egg','polygon','long')]
 def resource_path(relative_path):
   if hasattr(sys, '_MEIPASS'):
       return os.path.join(sys._MEIPASS, relative_path)
   return os.path.join(os.path.abspath('.'), relative_path)
+
+def proc_line(line):
+    circv,diav,eggv,longv,polv,squv,triv = [line[key2idx[k]] for k in ('circle','diamond','egg','long','polygon','square',
+                                                                        'triangle')]
+    longv = line[long]*3.9
+    ratio = line[dy]/line[dx]
+    if 1.33>ratio>=1.3:
+        circv /= 1.2
+        squv /= 1.2
+    elif ratio>=1.33:
+        circv /= 1.5
+        squv /= 1.5
+        if circv>eggv: circv,eggv = eggv,circv
+    if ratio>=1.3 and squv>polv: squv,polv = polv,squv
+    elif ratio<=1.25:
+        if max(circv,diav,eggv,longv,polv,squv,triv)==polv:
+            polv,squv = squv,polv
+
+    if max(circv,diav,eggv,polv,squv,triv)==eggv and longv>eggv: longv,eggv = eggv,longv
+    if max(circv,diav,eggv,longv,squv,triv)==eggv and polv>eggv: polv,eggv = eggv,polv
+    return pd.Series((circv,diav,eggv,longv,polv,squv,triv))
+
+
 
 def one_by_one(rel_path):
     print('Start Recognition!')
@@ -157,10 +185,15 @@ def one_by_one(rel_path):
     results = np.array(results)
     # print(results.shape)
     # print(results)
-    labels = [class_names[int(i)] if i is not None else None for i in results[:,0]]
-    comb = np.concatenate([np.array(img_list).reshape((-1,1)),np.array(labels).reshape((-1,1)), results[:,1:]], axis=1)#list(zip(img_list, results))
-    # print(comb.shape)
-    pd.DataFrame(comb).to_csv(args.output_file+'.csv', index=False, header=['filename','label','circle','diamond','egg','long','polygon','square','triangle','dx','dy'])
+    # labels = [class_names[int(i)] if i is not None else None for i in results[:,0]]
+    # comb = np.concatenate([np.array(img_list).reshape((-1,1)),np.array(labels).reshape((-1,1)), results[:,1:]], axis=1)#list(zip(img_list, results))
+    # pd.DataFrame(comb).to_csv(args.output_file + '.csv', index=False, header=header)
+    comb = results[:,1:] # 1,9
+    df = pd.DataFrame(comb)
+    ret = df.apply(proc_line, axis=1)
+    return ret.values
+    # # print(comb.shape)
+    # pd.DataFrame(comb).to_csv(args.output_file+'.csv', index=False, header=['filename','label','circle','diamond','egg','long','polygon','square','triangle','dx','dy'])
 
 def batch_inp(rel_path):
     print('Start Recognition!')
@@ -260,7 +293,26 @@ with tf.Graph().as_default():
 
         # video_capture = cv2.VideoCapture(0)
         c = 0
-        one_by_one(resource_path(args.rel_path))
+        sc = one_by_one(resource_path(args.rel_path))
+        df = pd.read_csv('template.csv')
+        mat = df.iloc[:,1:-2].values # 47,7
+        sc = np.matmul(mat, sc.T) # 47,1
+        df['score'] = sc
+        selected = df.sort_values('score', ascending=False).iloc[:8, [0,-3,-2]]
+        choice = args.choice
+        if choice==1:
+            ans = selected.sort_values('dating', ascending=False).iloc[:3,0].values
+        elif choice==2:
+            ans = selected.sort_values('career', ascending=False).iloc[:3, 0].values
+        else:
+            selected['avg'] = selected['dating']+selected['career']
+            ans = selected.sort_values('avg', ascending=False).iloc[:3, 0].values
+
+        print(
+            '='*25+'\n'
+            +f'{" ".join(ans)}'+'\n'
+            +'='*25
+        )
         # if show_flag:
         #     one_by_one(args.rel_path)
         # else: batch_inp(args.rel_path)
