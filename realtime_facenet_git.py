@@ -182,6 +182,9 @@ def one_by_one(rel_path):
     # print(len(ok_list),len(results))
     # pred[ok_list] = results
     # print(pred)
+    if len(results)==0:
+        print('failure in reading image, do not use chinese characters!')
+        return None
     results = np.array(results)
     # print(results.shape)
     # print(results)
@@ -294,6 +297,8 @@ with tf.Graph().as_default():
         # video_capture = cv2.VideoCapture(0)
         c = 0
         sc = one_by_one(resource_path(args.rel_path))
+        if sc is None:
+            exit(-1)
         img_list = glob.glob(os.path.join(args.rel_path, '*'))
         df = pd.read_csv('template.csv')
         mat = df.iloc[:,1:-2].values # 47,7

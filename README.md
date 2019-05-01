@@ -23,8 +23,10 @@ type `q` to quit, and any other key to continue.
 4. The test results will be output to `test_results.csv` by default, to set the file path:  
 `python realtime_facenet_git.py --rel_path ftdata\polygon --output_file results`  
 which sets the output file name to `results.csv`
-5. To enable the recommendation mode:
-`python realtime_facenet_git.py --rel_path test --choice 1`
+5. To enable the recommendation mode:  
+`python realtime_facenet_git.py --rel_path test --choice 1`  
+by default, the relative test data dir is `test` and recommendation mode `1`.  
+Equivalently, the above command has the default behavior of `python realtime_facenet_git.py`
 ### Catching up with the code
 go to your installation directory, e.g. `cd facetype_rec`  
 `git pull`
