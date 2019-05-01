@@ -86,7 +86,9 @@ def one_by_one(rel_path):
         # ret, frame = video_capture.read()
 
         # frame = cv2.resize(frame, (0,0), fx=0.5, fy=0.5)    #resize frame (optional)
-        if frame is None: continue
+        if frame is None:
+            print(f'failure in reading image {img_path}, do not use chinese characters in file name!')
+            continue
         curTime = time.time()  # calc fps
         timeF = frame_interval
 
@@ -172,7 +174,10 @@ def one_by_one(rel_path):
         a,b,m,n = bb[0]
         if res is not None:
             results.append([res]+list(predictions[0])+[m-a,n-b])
-        else: results.append([res]*10)
+        else:
+            # results.append([res]*10)
+            print(f'cannot detect any face for {img_path}, skip')
+            continue
 
     # video_capture.release()
     # #video writer
@@ -183,7 +188,6 @@ def one_by_one(rel_path):
     # pred[ok_list] = results
     # print(pred)
     if len(results)==0:
-        print('failure in reading image, do not use chinese characters!')
         return None
     results = np.array(results)
     # print(results.shape)
