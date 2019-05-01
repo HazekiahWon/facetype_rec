@@ -294,25 +294,30 @@ with tf.Graph().as_default():
         # video_capture = cv2.VideoCapture(0)
         c = 0
         sc = one_by_one(resource_path(args.rel_path))
+        img_list = glob.glob(os.path.join(args.rel_path, '*'))
         df = pd.read_csv('template.csv')
         mat = df.iloc[:,1:-2].values # 47,7
-        sc = np.matmul(mat, sc.T) # 47,1
-        df['score'] = sc
-        selected = df.sort_values('score', ascending=False).iloc[:8, [0,-3,-2]]
-        choice = args.choice
-        if choice==1:
-            ans = selected.sort_values('dating', ascending=False).iloc[:3,0].values
-        elif choice==2:
-            ans = selected.sort_values('career', ascending=False).iloc[:3, 0].values
-        else:
-            selected['avg'] = selected['dating']+selected['career']
-            ans = selected.sort_values('avg', ascending=False).iloc[:3, 0].values
-
-        print(
-            '='*25+'\n'
-            +f'{" ".join(ans)}'+'\n'
-            +'='*25
-        )
+        sc = np.matmul(mat, sc.T) # 47,1 > 47,k
+        df = df.iloc[:,[0,-2,-1]]
+        cnt = 0
+        for sc2 in sc.T:
+            df2 = df.copy()
+            df2['score'] = sc2
+            selected = df2.sort_values('score', ascending=False).iloc[:8, [0,-3,-2]]
+            choice = args.choice
+            if choice==1:
+                ans = selected.sort_values('dating', ascending=False).iloc[:3,0].values
+            elif choice==2:
+                ans = selected.sort_values('career', ascending=False).iloc[:3, 0].values
+            else:
+                selected['avg'] = selected['dating']+selected['career']
+                ans = selected.sort_values('avg', ascending=False).iloc[:3, 0].values
+            img_path = img_list[cnt]
+            print(
+                '='*25+'\n'
+                +f'{img_path}: {" ".join(ans)}'+'\n'
+                +'='*25
+            )
         # if show_flag:
         #     one_by_one(args.rel_path)
         # else: batch_inp(args.rel_path)
