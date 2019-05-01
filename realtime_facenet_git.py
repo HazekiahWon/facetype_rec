@@ -306,10 +306,11 @@ with tf.Graph().as_default():
         img_list = glob.glob(os.path.join(args.rel_path, '*'))
         df = pd.read_csv('template.csv')
         mat = df.iloc[:,1:-2].values # 47,7
-        sc = np.matmul(mat, sc.T) # 47,1 > 47,k
+        # sc, shaped k,7
+        sc_ = np.matmul(mat, sc.T) # 47,1 > 47,k
         df = df.iloc[:,[0,-2,-1]]
         cnt = 0
-        for sc2 in sc.T:
+        for sc2 in sc_.T:
             df2 = df.copy()
             df2['score'] = sc2
             selected = df2.sort_values('score', ascending=False).iloc[:8, [0,-3,-2]]
@@ -322,9 +323,10 @@ with tf.Graph().as_default():
                 selected['avg'] = selected['dating']+selected['career']
                 ans = selected.sort_values('avg', ascending=False).iloc[:3, 0].values
             img_path = img_list[cnt]
+            cscores = "\n".join("{:<15}: {}".format(k,v) for k,v in zip(header[:-2],sc[cnt]))
             print(
                 '='*25+'\n'
-                +f'{img_path}: {" ".join(ans)}'+'\n'
+                +f'{img_path}:\n{cscores}\n{"{:<15}: ".format("recommendation")+" ".join(ans)}'+'\n'
                 +'='*25
             )
         # if show_flag:
