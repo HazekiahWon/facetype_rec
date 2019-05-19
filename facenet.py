@@ -32,6 +32,7 @@ from subprocess import Popen, PIPE
 import tensorflow as tf
 from tensorflow.python.framework import ops
 import numpy as np
+from PIL import Image
 from scipy import misc
 from sklearn.model_selection import KFold
 from scipy import interpolate
@@ -546,3 +547,12 @@ def write_arguments_to_file(args, filename):
     with open(filename, 'w') as f:
         for key, value in vars(args).iteritems():
             f.write('%s: %s\n' % (key, str(value)))
+
+def imresize(arr, size, interp):
+    h,w = size
+    maps = dict(nearest=Image.NEAREST,
+                lanczos=Image.LANCZOS,
+                bilinear=Image.BILINEAR,
+                bicubic=Image.BICUBIC,
+                cubic=Image.BICUBIC,)
+    return np.array(Image.fromarray(arr).resize((w,h), maps.get(interp))

@@ -1,5 +1,5 @@
-tensorflow-gpu
+tensorflow-gpu<=1.12
 pandas
-scipy
+scipy<1.3.0
 opencv
 scikit-learn

@@ -127,7 +127,7 @@ def one_by_one(rel_path):
 
                     cropped.append(frame[bb[i][1]:bb[i][3], bb[i][0]:bb[i][2], :])
                     cropped[0] = facenet.flip(cropped[0], False)
-                    scaled.append(misc.imresize(cropped[0], (image_size, image_size), interp='bilinear'))
+                    scaled.append(facenet.imresize(cropped[0], (image_size, image_size), interp='bilinear'))
                     scaled[0] = cv2.resize(scaled[0], (input_image_size, input_image_size),
                                            interpolation=cv2.INTER_CUBIC)
                     scaled[0] = facenet.prewhiten(scaled[0])
@@ -242,7 +242,7 @@ def batch_inp(rel_path):
 
                 cropped = frame[bb[1]:bb[3], bb[0]:bb[2], :]
                 cropped = facenet.flip(cropped, False)
-                scaled = misc.imresize(cropped, (image_size, image_size), interp='bilinear')
+                scaled = facenet.imresize(cropped, (image_size, image_size), interp='bilinear')
                 scaled = cv2.resize(scaled, (input_image_size, input_image_size),
                                        interpolation=cv2.INTER_CUBIC)
                 scaled = facenet.prewhiten(scaled)

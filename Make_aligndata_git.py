@@ -98,7 +98,7 @@ with open(bounding_boxes_filename, "w") as text_file:
 
                         cropped_temp = img[bb_temp[1]:bb_temp[3], bb_temp[0]:bb_temp[2], :]
                         try:
-                            scaled_temp = misc.imresize(cropped_temp, (image_size, image_size), interp='bilinear')
+                            scaled_temp = facenet.imresize(cropped_temp, (image_size, image_size), interp='bilinear')
                         except:
                             print(cropped_temp.shape, image_size, image_path)
                             error_ls.append(image_path)
