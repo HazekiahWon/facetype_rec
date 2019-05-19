@@ -182,7 +182,10 @@ def one_by_one(rel_path):
     # video_capture.release()
     # #video writer
     # out.release()
-    cv2.destroyAllWindows()
+    try:
+        cv2.destroyAllWindows()
+    except:
+        pass
     # pred = np.zeros_like(img_list)
     # print(len(ok_list),len(results))
     # pred[ok_list] = results
