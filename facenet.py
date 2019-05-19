@@ -555,4 +555,4 @@ def imresize(arr, size, interp):
                 bilinear=Image.BILINEAR,
                 bicubic=Image.BICUBIC,
                 cubic=Image.BICUBIC,)
-    return np.array(Image.fromarray(arr).resize((w,h), maps.get(interp))
+    return np.array(Image.fromarray(arr).resize((w,h), maps.get(interp)))
