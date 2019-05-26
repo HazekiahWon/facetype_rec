@@ -201,7 +201,7 @@ def one_by_one(rel_path):
     comb = results[:,1:] # 1,9
     df = pd.DataFrame(comb)
     ret = df.apply(proc_line, axis=1)
-    return ret.values
+    return df.iloc[:,:-2].values, ret.values
     # # print(comb.shape)
     # pd.DataFrame(comb).to_csv(args.output_file+'.csv', index=False, header=['filename','label','circle','diamond','egg','long','polygon','square','triangle','dx','dy'])
 
@@ -303,14 +303,14 @@ with tf.Graph().as_default():
 
         # video_capture = cv2.VideoCapture(0)
         c = 0
-        sc = one_by_one(resource_path(args.rel_path))
+        sco,sc = one_by_one(resource_path(args.rel_path))
         if sc is None:
             exit(-1)
         img_list = glob.glob(os.path.join(args.rel_path, '*'))
         df = pd.read_csv('template2.csv')
-        print(df.shape)
+        # print(df.shape)
         mat = df.iloc[:,1:-2].values # 47,7
-        print(mat.shape)
+        # print(mat.shape)
         # sc, shaped k,7
         sc_ = np.matmul(mat, sc.T) # 47,1 > 47,k
         df = df.iloc[:,[0,-2,-1]]
@@ -328,7 +328,7 @@ with tf.Graph().as_default():
                 selected['avg'] = selected['dating']+selected['career']
                 ans = selected.sort_values('avg', ascending=False).iloc[:3, 0].values
             img_path = img_list[cnt]
-            cscores = "\n".join("{:<15}: {}".format(k,v) for k,v in zip(header[:-2],sc[cnt]))
+            cscores = "\n".join("{:<15}: {}->{}".format(k,vv,v) for k,vv,v in zip(header[:-2],sco[cnt],sc[cnt]))
             print(
                 '='*25+'\n'
                 +f'{img_path}:\n{cscores}\n{"{:<15}: ".format("recommendation")+" ".join(ans)}'+'\n'
