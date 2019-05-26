@@ -53,7 +53,7 @@ def resource_path(relative_path):
 def proc_line(line):
     circv,diav,eggv,longv,polv,squv,triv = [line[key2idx[k]] for k in ('circle','diamond','egg','long','polygon','square',
                                                                         'triangle')]
-    longv = line[long]*3.9
+    # longv = line[long]*3.9
     ratio = line[dy]/line[dx]
     if 1.33>ratio>=1.3:
         circv /= 1.2
@@ -307,8 +307,10 @@ with tf.Graph().as_default():
         if sc is None:
             exit(-1)
         img_list = glob.glob(os.path.join(args.rel_path, '*'))
-        df = pd.read_csv('template.csv')
+        df = pd.read_csv('template2.csv')
+        print(df.shape)
         mat = df.iloc[:,1:-2].values # 47,7
+        print(mat.shape)
         # sc, shaped k,7
         sc_ = np.matmul(mat, sc.T) # 47,1 > 47,k
         df = df.iloc[:,[0,-2,-1]]
