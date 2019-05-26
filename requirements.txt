@@ -1,7 +1,7 @@
 python==3.6
 tensorflow
 cudatoolkit==9.0
-cudnn==7.1
+cudnn==7.1.2
 pandas==0.24.2
 scipy==1.2.1
 opencv==3.4.2
