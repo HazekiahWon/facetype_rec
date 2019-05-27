@@ -55,17 +55,9 @@ def proc_line(line):
                                                                         'triangle')]
     # longv = line[long]*3.9
     ratio = line[dy]/line[dx]
-    if 1.33>ratio>=1.3:
-        circv /= 1.2
-        squv /= 1.2
-    elif ratio>=1.33:
-        circv /= 1.5
-        squv /= 1.5
-        if circv>eggv: circv,eggv = eggv,circv
-    if ratio>=1.3 and squv>polv: squv,polv = polv,squv
-    elif ratio<=1.25:
-        if max(circv,diav,eggv,longv,polv,squv,triv)==polv:
-            polv,squv = squv,polv
+    if ratio>=1.33:
+        circv /= 1.3
+        squv /= 1.3
 
     if max(circv,diav,eggv,polv,squv,triv)==eggv and longv>eggv: longv,eggv = eggv,longv
     if max(circv,diav,eggv,longv,squv,triv)==eggv and polv>eggv: polv,eggv = eggv,polv
@@ -201,7 +193,8 @@ def one_by_one(rel_path):
     comb = results[:,1:] # 1,9
     df = pd.DataFrame(comb)
     ret = df.apply(proc_line, axis=1)
-    return df.iloc[:,:-2].values, ret.values
+    # return df.iloc[:,:-2].values, ret.values
+    return ret.values
     # # print(comb.shape)
     # pd.DataFrame(comb).to_csv(args.output_file+'.csv', index=False, header=['filename','label','circle','diamond','egg','long','polygon','square','triangle','dx','dy'])
 
@@ -303,7 +296,8 @@ with tf.Graph().as_default():
 
         # video_capture = cv2.VideoCapture(0)
         c = 0
-        sco,sc = one_by_one(resource_path(args.rel_path))
+        # sco,sc = one_by_one(resource_path(args.rel_path))
+        sc = one_by_one(resource_path(args.rel_path))
         if sc is None:
             exit(-1)
         img_list = glob.glob(os.path.join(args.rel_path, '*'))
@@ -328,7 +322,8 @@ with tf.Graph().as_default():
                 selected['avg'] = selected['dating']+selected['career']
                 ans = selected.sort_values('avg', ascending=False).iloc[:3, 0].values
             img_path = img_list[cnt]
-            cscores = "\n".join("{:<15}: {}->{}".format(k,vv,v) for k,vv,v in zip(header[:-2],sco[cnt],sc[cnt]))
+            # cscores = "\n".join("{:<15}: {}->{}".format(k,vv,v) for k,vv,v in zip(header[:-2],sco[cnt],sc[cnt]))
+            cscores = "\n".join("{:<15}: {}".format(k, v) for k, v in zip(header[:-2], sc[cnt]))
             print(
                 '='*25+'\n'
                 +f'{img_path}:\n{cscores}\n{"{:<15}: ".format("recommendation")+" ".join(ans)}'+'\n'
