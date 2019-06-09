@@ -5,7 +5,9 @@ from __future__ import print_function
 import tensorflow as tf
 from scipy import misc
 import cv2
-
+from requests import get as urlget
+from PIL import Image
+from io import BytesIO
 import numpy as np
 import argparse
 import facenet
@@ -32,6 +34,8 @@ parser.add_argument('--clf_dir', type=str, default=config.clf_dir,
                     help='classifier dir')
 parser.add_argument('--rel_path', type=str, default=config.rel_path,
                     help='the relative path of the input data dir')
+parser.add_argument('--url', type=str, default=config.url_path,
+                    help='url of the image')
 parser.add_argument('--choice', type=int, default=1)
 parser.add_argument('--output_file', type=str, default='test_results',
                     help='the output file name for the test results')
@@ -65,16 +69,36 @@ def proc_line(line):
 
 
 
-def one_by_one(rel_path):
+def one_by_one(rel_path, url=False):
     print('Start Recognition!')
     prevTime = 0
-    img_list = glob.glob(os.path.join(rel_path, '*'))
+    # TODO: support multiple url
+    if url: img_list = [None]
+    else: img_list = glob.glob(os.path.join(rel_path, '*'))
     results = list()
     # cnt = 0
     # ok_list = list()
     for img_path in img_list:  # for each image in the list
         res = None
-        frame = cv2.imread(img_path)
+        # print('===', url)
+        if url:
+
+            try:
+                rsp = urlget(rel_path)
+                # print(rsp)
+                if rsp.status_code == 200:
+                    frame = np.array(Image.open(BytesIO(rsp.content)))
+                else:
+                    print('status code: ', rsp.status_code)
+                    exit(-1)
+            except Exception as e:
+                print(repr(e))
+                exit(-1)
+
+
+
+        else:
+            frame = cv2.imread(img_path)
         # ret, frame = video_capture.read()
 
         # frame = cv2.resize(frame, (0,0), fx=0.5, fy=0.5)    #resize frame (optional)
@@ -296,11 +320,17 @@ with tf.Graph().as_default():
 
         # video_capture = cv2.VideoCapture(0)
         c = 0
-        # sco,sc = one_by_one(resource_path(args.rel_path))
-        sc = one_by_one(resource_path(args.rel_path))
+        # sco,sc = one_by1_one(resource_path(args.rel_path))
+        if args.url != '':
+            sc = one_by_one(args.url, url=True)
+            img_list = [args.url]
+        else:
+            sc = one_by_one(resource_path(args.rel_path))
+            img_list = glob.glob(os.path.join(args.rel_path, '*'))
+
         if sc is None:
             exit(-1)
-        img_list = glob.glob(os.path.join(args.rel_path, '*'))
+
         df = pd.read_csv('template2.csv')
         # print(df.shape)
         mat = df.iloc[:,1:-2].values # 47,7

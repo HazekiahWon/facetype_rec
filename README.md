@@ -27,6 +27,8 @@ which sets the output file name to `results.csv`
 `python realtime_facenet_git.py --rel_path test --choice 1`  
 by default, the relative test data dir is `test` and recommendation mode `1`.  
 Equivalently, the above command has the default behavior of `python realtime_facenet_git.py`
+6. To enable url access:
+`python realtime_facenet_git.py --url "http:\\url\to\your\image`
 ### Catching up with the code
 go to your installation directory, e.g. `cd facetype_rec`  
 `git pull`
