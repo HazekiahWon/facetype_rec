@@ -95,8 +95,6 @@ def one_by_one(rel_path, url=False):
                 print(repr(e))
                 exit(-1)
 
-
-
         else:
             frame = cv2.imread(img_path)
         # ret, frame = video_capture.read()
@@ -171,7 +169,8 @@ def one_by_one(rel_path, url=False):
                                 cv2.putText(frame, result_names, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                             1, (0, 0, 255), thickness=1, lineType=2)
             else:
-                print('Unable to align')
+                print('No face detected.')
+                exit(-1)
 
         sec = curTime - prevTime
         prevTime = curTime
